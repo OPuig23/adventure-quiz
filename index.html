@@ -3,33 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adventure Event Quiz</title>
+  <title>Adventure Event Quiz - Cal Blay</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <header>
+    <img src="logo.png" alt="Cal Blay" class="logo">
+    <h1 class="app-title">Joc de preguntes aventura</h1>
+  </header>
   <div id="app">
-    <!-- QR i botó de començar -->
+    <!-- QR + Intro -->
     <section id="qr-section" class="centered">
-      <h2>🧮 Escaneja aquest codi QR</h2>
+      <h2>📲 Escaneja aquest codi QR</h2>
       <div id="qrcode-intro" class="q-small"></div>
       <button id="start-btn" class="btn">Començar</button>
     </section>
-    <!-- Joc: preguntes i temporitzador -->
+
+    <!-- Joc -->
     <section id="quiz-screen" class="hidden">
-      <div id="timer-bar">
-        <div id="timer-fill"><span id="timer-text">20s</span></div>
-      </div>
+      <div id="timer-bar"><span id="timer-text">20s</span></div>
       <div id="card-container"></div>
     </section>
+
     <!-- Resultats -->
     <section id="result-screen" class="hidden">
-      <h2>Resultats</h2>
-      <ul id="result-list"></ul>
-      <div id="qrcode-result" class="q-small"></div>
+      <h2>📊 Resultats del Joc</h2>
+      <div id="result-list"></div>
+      <div id="qrcode-result"></div>
     </section>
   </div>
   <script src="qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

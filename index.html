@@ -8,55 +8,28 @@
 </head>
 <body>
   <div id="app">
-    <!-- Intro QR i Start -->
+    <!-- QR i botó de començar -->
     <section id="qr-section" class="centered">
-      <h2>📱 Escaneja aquest codi QR</h2>
-      <div id="qrcode-intro"></div>
+      <h2>🧮 Escaneja aquest codi QR</h2>
+      <div id="qrcode-intro" class="q-small"></div>
       <button id="start-btn" class="btn">Començar</button>
     </section>
-
-    <!-- Quiz Screen -->
+    <!-- Joc: preguntes i temporitzador -->
     <section id="quiz-screen" class="hidden">
-      <div id="question-box" class="centered box">
-        <h3 id="question-text"></h3>
-        <div id="options" class="options"></div>
+      <div id="timer-bar">
+        <div id="timer-fill"><span id="timer-text">20s</span></div>
       </div>
+      <div id="card-container"></div>
     </section>
-
-    <!-- Results Screen -->
-    <section id="result-screen" class="hidden centered">
-      <h2>🏆 Resultats Finals</h2>
+    <!-- Resultats -->
+    <section id="result-screen" class="hidden">
+      <h2>Resultats</h2>
       <ul id="result-list"></ul>
-      <h3>Comparteix:</h3>
-      <div id="qrcode-result"></div>
+      <div id="qrcode-result" class="q-small"></div>
     </section>
   </div>
-
   <script src="qrcode.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // URL per QR i link
-      // URL pública del joc (canvia-ho pel teu domini GitHub Pages)
-      const url = 'https://EL_TEU_USUARI.github.io/adventure-quiz/';
-      const qrIntro = new QRCode(document.getElementById('qrcode-intro'), url);
-      // Fer QR clicable
-      const qrContainer = document.getElementById('qrcode-intro');
-      const link = document.createElement('a');
-      link.href = url;
-      link.target = '_blank';
-      // Mou contingut del QR dins l'enllaç
-      link.appendChild(qrContainer.querySelector('img'));
-      qrContainer.innerHTML = '';
-      qrContainer.appendChild(link);
-
-      const startBtn = document.getElementById('start-btn');
-      const qrSection = document.getElementById('qr-section');
-      const quizScreen = document.getElementById('quiz-screen');
-      startBtn.addEventListener('click', () => {
-        qrSection.classList.add('hidden');
-        quizScreen.classList.remove('hidden');
-        showQuestion(0);
-      });
-    });
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
+</body>
+</html>

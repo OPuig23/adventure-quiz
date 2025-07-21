@@ -1,63 +1,72 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>🔥 POSA’T VERMELL! | Enquesta Col·lectiva Cal Blay</title>
-  <link rel="stylesheet" href="css/style.css">
-  <!-- Firebase via CDN (compat mode per a ús en navegador sense bundler) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔥 POSA’T VERMELL! | Enquesta Col·lectiva Cal Blay</title>
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="Logo Cal Blay" class="logo">
-    <h1>🔥 POSA’T VERMELL! 🔥</h1>
-    <p class="subtitol">La gran avaluació blayana — parlem sense filtres!</p>
+    <img src="./logo.png" alt="Logo Cal Blay" class="logo" />
+    <h1>🔥 POSA’T VERMELL! 🔥</h1>
+    <p class="subtitol">La gran avaluació blayana — parlem sense filtres!</p>
   </header>
 
   <main>
-    <!-- 1. ADMIN: setup -->
+    <!-- 1. Setup: nombre de participants -->
     <section id="setup-section" class="card centered">
       <label for="num-participants">Nombre de participants:</label>
-      <input type="number" id="num-participants" min="1" placeholder="p. ex. 12">
+      <input
+        type="number"
+        id="num-participants"
+        min="1"
+        placeholder="p. ex. 12"
+      />
       <button id="setup-btn" class="btn">Comença Enquesta</button>
     </section>
 
-    <!-- 2. ADMIN: QR + start -->
+    <!-- 2. QR + start -->
     <section id="qr-section" class="card centered hidden">
-      <h2>📱 Escaneja aquest codi QR</h2>
+      <h2>📱 Escaneja aquest codi QR</h2>
       <div id="qrcode-intro"></div>
       <button id="start-btn" class="btn">Inicia Enquesta</button>
     </section>
 
-    <!-- 3. PARTICIPANT: esperant start -->
+    <!-- 3. Esperant inici (participants) -->
     <section id="wait-section" class="card centered hidden">
-      <h2>⏳ Esperant que l’admin arranqui...</h2>
+      <h2>⏳ Esperant que comenci l’enquesta…</h2>
+      <p>
+        Participants units:
+        <span id="joined-count">0</span> / <span id="total-count">0</span>
+      </p>
     </section>
 
-    <!-- 4. PARTICIPANT: quiz -->
+    <!-- 4. Preguntes (quiz) -->
     <section id="quiz-screen" class="card hidden">
       <div id="timer-bar"><span id="timer-text">20s</span></div>
       <div id="card-container"></div>
     </section>
 
-    <!-- 5. ADMIN: resultats -->
+    <!-- 5. Resultats (admin) -->
     <section id="result-screen" class="card hidden">
-      <h2>📊 Resultats del Joc</h2>
+      <h2>📊 Resultats Col·lectius</h2>
       <ul id="result-list"></ul>
     </section>
   </main>
 
   <footer>
-    <p>Powered by Cal Blay | <a href="https://calblay.com" target="_blank">calblay.com</a></p>
+    <p>
+      Powered by Cal Blay | 
+      <a href="https://calblay.com" target="_blank">calblay.com</a>
+    </p>
   </footer>
 
-  <!-- QR lib -->
-  <script src="js/qrcode.min.js"></script>
-  <!-- Firebase config i inicialització -->
-  <script src="js/firebase-config.js"></script>
-  <!-- Lògica de l’app -->
-  <script src="js/app.js"></script>
+  <!-- Llibreria QRCode (local) -->
+  <script src="./qrcode.min.js"></script>
+  <!-- Configuració Firebase -->
+  <script type="module" src="./js/firebase-config.js"></script>
+  <!-- Lògica principal -->
+  <script type="module" src="./js/app.js"></script>
 </body>
 </html>

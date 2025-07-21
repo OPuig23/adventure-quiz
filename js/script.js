@@ -1,28 +1,24 @@
-// script.js
-document.addEventListener('DOMContentLoaded', () => {
+ocument.addEventListener('DOMContentLoaded', () => {
   const publicUrl = 'https://opuig23.github.io/adventure-quiz/';
-
-  // DOM elements
+  // Elements
   const setupSection = document.getElementById('setup-section');
-  const setupBtn     = document.getElementById('setup-btn');
-  const numInput     = document.getElementById('num-participants');
-
   const qrSection    = document.getElementById('qr-section');
-  const qrcodeIntro  = document.getElementById('qrcode-intro');
+  const quizScreen   = document.getElementById('quiz-screen');
+  const waitScreen   = document.getElementById('wait-screen');
+  const resultScreen = document.getElementById('result-screen');
+
+  const numInput     = document.getElementById('num-participants');
+  const setupBtn     = document.getElementById('setup-btn');
   const startBtn     = document.getElementById('start-btn');
 
-  const quizScreen   = document.getElementById('quiz-screen');
-  const cardContainer= document.getElementById('card-container');
+  const totalCountEl   = document.getElementById('total-count');
+  const currentCountEl = document.getElementById('current-count');
 
-  const waitScreen   = document.getElementById('wait-screen');
-  const currentCount = document.getElementById('current-count');
-  const totalCount   = document.getElementById('total-count');
+  const cardContainer = document.getElementById('card-container');
+  const timerFill     = document.getElementById('timer-fill');
+  const timerText     = document.getElementById('timer-text');
 
-  const resultScreen = document.getElementById('result-screen');
-  const resultList   = document.getElementById('result-list');
-
-  let totalParticipants = 0;
-  let current = 0, answers = [], timer;
+  const resultList    = document.getElementById('result-list');
 
   // Preguntes
   const questions = [ /* ... les 25 preguntes igual que abans ... */
@@ -54,181 +50,127 @@ document.addEventListener('DOMContentLoaded', () => {
     { type: 'multiple', text: 'Quin sentiment tens ara mateix respecte formar part de Cal Blay?', choices: ['Orgull i pertinença','Amb ganes de créixer amb l’empresa','Estic una mica desconnectat/da','Em plantejo canvis si no hi ha millores'] }
   ];
 
- // 1. Setup: defineix nombre de participants
-  setupBtn.onclick = () => {
-    const n = parseInt(numInput.value);
-    if (!n || n < 1) return alert('Introdueix un nombre vàlid de participants');
-    totalParticipants = n;
-    totalCount.textContent = n;
+ let totalParticipants = 0;
+  let responses = [];
+  let timerId, currentQ = 0, timer = 20;
 
-    setupSection.classList.add('hidden');
-    // Generem el QR a la pantalla següent
-    new QRCode(qrcodeIntro, publicUrl);
-    qrSection.classList.remove('hidden');
-  };
+  // --- Funció per mostrar la pregunta actual
+  function showQuestion() {
+    clearInterval(timerId);
+    timer = 20;
+    timerFill.style.width = '100%';
+    timerText.textContent = '20s';
+    cardContainer.innerHTML = '';
 
-  // 2. Al click de "Comença Enquesta" (QR done)
-  startBtn.onclick = () => {
-    qrSection.classList.add('hidden');
-    quizScreen.classList.remove('hidden');
-    showCard(0);
-  };
+    if (currentQ >= questions.length) {
+      endQuiz();
+      return;
+    }
 
-  // 3. Funció per al timer
-  function startTimer(cb) {
-    const bar = document.getElementById('timer-bar');
-    bar.innerHTML = '<div id="timer-fill"></div><span id="timer-text">20s</span>';
-    const fill = document.getElementById('timer-fill');
-    const text = document.getElementById('timer-text');
-    let t = 20;
-    fill.style.width = '100%';
-    timer = setInterval(() => {
-      t--;
-      fill.style.width = (t/20*100) + '%';
-      text.textContent = t + 's';
-      if (t <= 0) {
-        clearInterval(timer);
-        cb(null);
-      }
+    const q = questions[currentQ];
+    const card = document.createElement('div');
+    card.className = 'card';
+    const p = document.createElement('p');
+    p.textContent = `Q${currentQ+1}: ${q.text}`;
+    card.appendChild(p);
+
+    q.choices.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = ch;
+      btn.addEventListener('click', () => selectAnswer(ch));
+      card.appendChild(btn);
+    });
+
+    cardContainer.appendChild(card);
+
+    // Començar temporitzador
+    timerId = setInterval(() => {
+      timer--;
+      timerFill.style.width = (timer / 20 * 100) + '%';
+      timerText.textContent = timer + 's';
+      if (timer <= 0) selectAnswer(null);
     }, 1000);
   }
 
-  // 4. Mostrar pregunta
-  function showCard(idx) {
-    clearInterval(timer);
-    cardContainer.innerHTML = '';
-    startTimer(selectAnswer);
+  // --- Desa la resposta i passa al següent participant/pregunta
+  function selectAnswer(ans) {
+    clearInterval(timerId);
+    responses.push(ans);
+    currentCountEl.textContent = responses.length;
 
-    const q = questions[idx];
-    const card = document.createElement('div');
-    card.className = 'card';
-
-    const h3 = document.createElement('h3');
-    h3.textContent = `P${idx+1}: ${q.text}`;
-    card.appendChild(h3);
-
-    const opts = document.createElement('div');
-    opts.className = 'options';
-
-    const arr = q.type === 'rating' ? q.options : q.choices;
-    arr.forEach(opt => {
-      const b = document.createElement('button');
-      b.className = 'option-btn';
-      b.textContent = opt;
-      b.onclick = () => selectAnswer(opt);
-      opts.appendChild(b);
-    });
-
-    card.appendChild(opts);
-    cardContainer.appendChild(card);
+    if (responses.length < totalParticipants) {
+      // Si encara falten participants, anem al wait-screen
+      quizScreen.classList.add('hidden');
+      waitScreen.classList.remove('hidden');
+    } else {
+      // Tothom ha respost: acabem
+      endQuiz();
+    }
   }
 
-  // 5. Desa la resposta i, si és l'última, POST al servidor
-  function selectAnswer(value) {
-    clearInterval(timer);
-    answers.push(value);
-    current++;
-    if (current < questions.length) {
-      return showCard(current);
+  // --- Quan tothom ha respost
+  function endQuiz() {
+    waitScreen.classList.add('hidden');
+    quizScreen.classList.add('hidden');
+    resultScreen.classList.remove('hidden');
+
+    // Renderitza resultats (simplificat)
+    resultList.innerHTML = '';
+    questions.forEach((q,i) => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `<strong>Q${i+1}:</strong> ${q.text}<br>
+        <em>(Aquí hi anirien gràfics i conclusions)</em>`;
+      resultList.appendChild(div);
+    });
+
+    // QR per tornar a començar
+    new QRCode(document.getElementById('qrcode-result'), publicUrl);
+  }
+
+  // --- Setup inicial
+  function init() {
+    // Si la ronda ja s'ha començat (admin), saltem setup+QR
+    if (localStorage.getItem('quizStarted') === 'yes') {
+      totalParticipants = parseInt(localStorage.getItem('quizTotal')) || 0;
+      setupSection.classList.add('hidden');
+      qrSection.classList.add('hidden');
+      quizScreen.classList.remove('hidden');
+      showQuestion();
+      return;
     }
 
-    // Envia les respostes al backend d'Apps Script
-    fetch('YOUR_WEB_APP_URL', {
-      method: 'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ answers })
-    })
-    .then(() => waitForAll())
-    .catch(console.error);
+    // Si no, mostrem formulari de configuració
+    setupSection.classList.remove('hidden');
   }
 
-  // 6. Pàgina d'espera fins que tothom hagi votat
-  function waitForAll() {
-    quizScreen.classList.add('hidden');
-    waitScreen.classList.remove('hidden');
+  // --- Botó “Comença Enquesta” (admin)
+  setupBtn.addEventListener('click', () => {
+    totalParticipants = parseInt(numInput.value);
+    if (!totalParticipants || totalParticipants < 1) {
+      alert('Introdueix un nombre vàlid de participants.');
+      return;
+    }
+    // Marquem que l’enquesta ha començat i enmagatzemem total
+    localStorage.setItem('quizStarted', 'yes');
+    localStorage.setItem('quizTotal', totalParticipants);
 
-    const iv = setInterval(() => {
-      fetch('YOUR_WEB_APP_URL')
-        .then(res => res.json())
-        .then(data => {
-          currentCount.textContent = data.count;
-          if (data.count >= totalParticipants) {
-            clearInterval(iv);
-            displayAggregated(data.aggregated);
-          }
-        });
-    }, 2000);
-  }
+    setupSection.classList.add('hidden');
+    qrSection.classList.remove('hidden');
+    totalCountEl.textContent = totalParticipants;
 
-  // 7. Mostra resultats agregats
-  function displayAggregated(agg) {
-    waitScreen.classList.add('hidden');
-    resultScreen.classList.remove('hidden');
-    resultList.innerHTML = '';
+    // Generem QR perquè els participants escanegin
+    new QRCode(document.getElementById('qrcode-intro'), publicUrl);
+  });
 
-    questions.forEach((q, i) => {
-      const counts = agg[i] || {};
-      const card = document.createElement('div');
-      card.className = 'result-card';
+  // --- Botó “Comença Enquesta” (participants)
+  startBtn.addEventListener('click', () => {
+    qrSection.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    showQuestion();
+  });
 
-      const h3 = document.createElement('h3');
-      h3.textContent = `P${i+1}: ${q.text}`;
-      card.appendChild(h3);
-
-      // Si és rating: mitjana, moda, comentari
-      if (q.type === 'rating') {
-        const arr = [];
-        Object.entries(counts).forEach(([k,v]) => {
-          for (let j=0; j<v; j++) arr.push(Number(k));
-        });
-        const m = calcularMitjana(arr),
-              mo = calcularModa(arr),
-              c = comentariLideratge(m);
-
-        const pm = document.createElement('div');
-        pm.className = 'result-metrics';
-        pm.innerHTML = `Mitjana: <b>${m}</b> · Moda: <b>${mo}</b>`;
-        card.appendChild(pm);
-
-        const cc = document.createElement('div');
-        cc.className = 'comentari-ia';
-        cc.textContent = c;
-        card.appendChild(cc);
-      }
-
-      // Gràfica de barres
-      const barcont = document.createElement('div');
-      barcont.className = 'result-bars';
-      const total = Object.values(counts).reduce((a,b)=>a+b,0);
-      const maxV = Math.max(...Object.values(counts),0);
-      const win  = Object.keys(counts).find(k=>counts[k] === maxV);
-
-      const arr = q.type==='rating' ? q.options : q.choices;
-      arr.forEach(opt => {
-        const sp = document.createElement('span');
-        sp.className = 'result-bar' + (counts[opt] === maxV ? ' selected' : '');
-        sp.innerHTML = `${opt}<br>${counts[opt]||0} vot${(counts[opt]||0)!==1?'s':''}`;
-        barcont.appendChild(sp);
-      });
-      card.appendChild(barcont);
-
-      // Reflexió IA
-      if (q.type === 'multiple') {
-        const perc = total ? Math.round(counts[win]/total*100) : 0;
-        const r = reflexioPregunta(q.text, win, perc);
-        const rc = document.createElement('div');
-        rc.className = 'comentari-ia';
-        rc.textContent = r;
-        card.appendChild(rc);
-      }
-
-      resultList.appendChild(card);
-    });
-  }
-
-  // --- Funcions IA de càlcul i comentaris (ja definides abans) ---
-  function calcularMitjana(a){ if(!a.length)return 0; const s=a.reduce((x,y)=>x+Number(y),0); return (s/a.length).toFixed(2);}
-  function calcularModa(a){ if(!a.length)return null; const c={}; a.forEach(v=>c[v]=(c[v]||0)+1); let m=a[0],mc=c[m]; for(let k in c) if(c[k]>mc){m=k;mc=c[k];} return m;}
-  function comentariLideratge(m){ m=Number(m); if(m>=8) return "Lideratge top – Santi, ja pots reservar taula per als Oscars! 🍾"; if(m>=6) return "Sòlid, però sempre hi ha marge de millora. Un cafè amb l’equip mai fa mal! ☕"; if(m>=4) return "Zona d’alerta – Potser cal una jornada d’alineació blayana! ⚠️"; if(m>0) return "Ai, ai… Necessitem feedback i un esmorzar d’equip urgent! 🍳"; return "Encara no hi ha prou respostes per obtenir conclusions sòlides."; }
-  function reflexioPregunta(t,win,p){ if(t.includes("urgència")){ if(win==="Logística") return "Els camions de Cal Blya arriben abans que Amazon Prime!"; if(win==="Cuina") return "La cuina reacciona més ràpid que el microones! 👨‍🍳"; if(win==="Manteniment") return "Manteniment: més ràpids que una fuita d’aigua! 🚰"; if(win==="Serveis") return "Serveis? Hi són abans que truquis!"; } if(p>70) return "Consens claríssim! L’equip ho té molt clar. ✅"; if(p>40) return "La majoria coincideix, però hi ha debat. 🤔"; return "Opinions repartides— potser brainstorm imminent! 🧠"; }
+  // Iniciem
+  init();
 });

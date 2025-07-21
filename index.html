@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>POSA’T VERMELL! | Enquesta Col·lectiva</title>
+  <!-- Base per a GitHub Pages -->
+  <base href="https://opuig23.github.io/adventure-quiz/">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -31,11 +33,11 @@
 
     <!-- 3. Quiz Screen -->
     <section id="quiz-screen" class="card hidden">
-      <div id="timer-bar"><span id="timer-text">20s</span></div>
+      <div id="timer-bar"><div id="timer-fill"></div><span id="timer-text">20s</span></div>
       <div id="card-container"></div>
     </section>
 
-    <!-- 4. Wait for results -->
+    <!-- 4. Espera resultats -->
     <section id="wait-screen" class="card centered hidden">
       <h2>⏳ Esperant que acabi tothom...</h2>
       <p>Respostes recollides: <span id="current-count">0</span> / <span id="total-count">0</span></p>
@@ -45,6 +47,7 @@
     <section id="result-screen" class="card hidden">
       <h2>📊 Resultats Col·lectius</h2>
       <div id="result-list"></div>
+      <div id="qrcode-result" class="q-small"></div>
     </section>
   </main>
 

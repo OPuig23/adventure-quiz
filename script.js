@@ -53,7 +53,10 @@ function showResults() {
     resultList.appendChild(li);
   });
   // QR final
-  new QRCode(document.getElementById('qrcode-result'), window.location.href);
+   // Després
+const publicUrl = 'https://OPuig23.github.io/adventure-quiz/';
+new QRCode(document.getElementById('qrcode-result'), publicUrl);
+
 }
 
 // Start
